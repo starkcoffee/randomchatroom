@@ -1,0 +1,19 @@
+application: randomguestbook
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /stylesheets
+  static_dir: stylesheets
+
+- url: /info
+  static_dir: info
+
+- url: /.*
+  script: randomchatroom.py
+
+builtins:
+- datastore_admin: on
+- remote_api: on
+
