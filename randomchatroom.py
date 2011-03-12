@@ -65,13 +65,15 @@ class Messages(webapp.RequestHandler):
 
     content = self.request.get('content')
 
-    rudish_words = ["COCK", "DICK", "CUNT", "FUCK", "ANUS", "VAGINA", "BITCH", "WHORE", "FAG", "RAPIST", "RAPE", "SLUT"]
+	#This really needs a better method that doesn't 'dirty' the coding.
+    rudish_words = ["COCK", "DICK", "CUNT", "FUCK", "ANUS", "VAGINA", "BITCH", "WHORE", "FAG", "RAPIST", "RAPE", "SLUT", "PENIS"]
     for word in rudish_words:
         if re.search(word, content.upper() ):
-            self.redirect('/')
-            return
+            content = re.sub(word,'Banana',content,flags=re.IGNORECASE)
+            #self.redirect('/')  -- Old system
+            #return
 
-    message.content = self.request.get('content')
+    message.content = content
     message.put()
     self.redirect('/')
 
