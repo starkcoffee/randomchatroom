@@ -65,7 +65,7 @@ class Messages(webapp.RequestHandler):
 
     content = self.request.get('content')
 
-    rudish_words = ["COCK", "DICK", "CUNT", "FUCK", "ANUS", "VAGINA", "BITCH", "WHORE", "FAG", "RAPIST", "RAPE"]
+    rudish_words = ["COCK", "DICK", "CUNT", "FUCK", "ANUS", "VAGINA", "BITCH", "WHORE", "FAG", "RAPIST", "RAPE", "SLUT']
     for word in rudish_words:
         if re.search(word, content.upper() ):
             self.redirect('/')
