@@ -2,8 +2,8 @@ This is the source code behind http://the.randomchatroom.net
 
 
 Who can contribute and how?  
--------------------
-Anyone who is interested... this is a learning project and social experiment :)  We are all various level of n00bs here :)  Feel free to
+----------------------------
+Anyone who is interested... this is a learning project and social experiment :)  We are all various level of n00bs here.  Feel free to
 ask questions in the chatroom or on the google group - don't be shy ;)
 
 Please join the google group for help on getting involved http://groups.google.com/group/randomchatroom
@@ -29,6 +29,10 @@ To learn Google App Engine (as well as how to run it locally) do the Getting Sta
 To learn python we recommend .. ??? there are heaps of resources out there (dive into python is a free book but geared more to those who already know
 programmig), I don't know of a really good one sorry.
 
+Access to app statistics
+------------------------
+If you're interested in viewing the google app engine dashboard for this project, or the google analytics statistics, shoot a gmail to starkcoffee 
+
 This is how we work:
 --------------------
 
@@ -44,4 +48,5 @@ Info on how to fork - http://help.github.com/fork-a-repo/
 Why are there no tests??
 ------------------------
 Yeh... good point .. :/ :/ :?  COMING SOON!!!
+
 
