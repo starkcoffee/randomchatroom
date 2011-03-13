@@ -14,14 +14,16 @@ class Message(db.Model):
   author = db.UserProperty()
   content = db.StringProperty(multiline=True)
   date = db.DateTimeProperty(auto_now_add=True)
+  Alias = db.StringProperty()
 
 
 class MessageView:
   def __init__(self, message):
     self.message = message
-    self.author = "A monkey"
-    if message.author:
-      self.author = message.author.nickname
+    if message.Alias:
+      self.author = message.Alias
+    else:
+      self.author = "A monkey"
 
     now = datetime.datetime.now()
     timedelta = now - message.date
@@ -34,12 +36,12 @@ class MainPage(webapp.RequestHandler):
     messages_query = Message.all().order('-date')
     messages = messages_query.fetch(50)
 
-    if users.get_current_user():
-      url = users.create_logout_url(self.request.uri)
-      url_linktext = 'Logout'
-    else:
-      url = users.create_login_url(self.request.uri)
-      url_linktext = 'Login if you want'
+    #if users.get_current_user():
+    #  url = users.create_logout_url(self.request.uri)
+    #  url_linktext = 'Logout'
+    #else:
+    #  url = users.create_login_url(self.request.uri)
+    #  url_linktext = 'Login if you want'
 
     message_views = []
     for message in messages:
@@ -47,32 +49,30 @@ class MainPage(webapp.RequestHandler):
 
     template_values = {
       'messages': message_views,
-      'url': url,
-      'url_linktext': url_linktext,
+    #  'url': url,
+    #  'url_linktext': url_linktext,
       }
 
     path = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(path, template_values))
     
+def Filter(string):
+    file = open("filter","r")
+    rudish_words = file.readlines()
+    file.close()
+    for word in rudish_words:
+        pattern = re.compile(word,re.IGNORECASE | re.VERBOSE)
+        string = re.sub(pattern,'Banana',string)
+    return string
 
 class Messages(webapp.RequestHandler):
   def post(self):
     message = Message()
 
 
-    if users.get_current_user():
-      message.author = users.get_current_user()
+    message.Alias = Filter(self.request.get('Alias'))
 
-    content = self.request.get('content')
-
-	#This really needs a better method that doesn't 'dirty' the coding.
-    rudish_words = ["COCK", "DICK", "CUNT", "FUCK", "ANUS", "VAGINA", "BITCH", "WHORE", "FAG", "RAPIST", "RAPE", "SLUT", "PENIS", "SHIT"]
-    for word in rudish_words:
-        if re.search(word, content.upper() ):
-            pattern = re.compile(word,re.IGNORECASE)
-            content = re.sub(pattern,'Banana',content)
-            #self.redirect('/')  -- Old system
-            #return
+    content = Filter(self.request.get('content'))
 
     message.content = content
     message.put()
