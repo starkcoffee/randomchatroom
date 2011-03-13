@@ -5,6 +5,7 @@ import datetime
 from django.utils import simplejson
 
 from google.appengine.api import users
+from google.appengine.api import memcache
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
@@ -55,11 +56,20 @@ class MainPage(webapp.RequestHandler):
 
     path = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(path, template_values))
-    
+
+def GetFilter():
+    words = memcache.get("rudish_words")
+    if words is not None:
+        return words
+    else:
+        file = open("filter","r")
+        words = file.readlines()
+        file.close()
+        memcache.add("rudish_words",words,0)
+        return words
+
 def Filter(string):
-    file = open("filter","r")
-    rudish_words = file.readlines()
-    file.close()
+    rudish_words = GetFilter()
     for word in rudish_words:
         pattern = re.compile(word,re.IGNORECASE | re.VERBOSE)
         string = re.sub(pattern,'Banana',string)
