@@ -9,6 +9,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
+from google.appengine.api import memcache
 
 class Message(db.Model):
   author = db.UserProperty()
@@ -46,6 +47,11 @@ class MainPage(webapp.RequestHandler):
 
     path = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(path, template_values))
+    lastModifiedTime = memcache.get("last_message_posted_at") 
+    if lastModifiedTime is not None:
+        self.response.headers['Cache-Control'] = 'must-revalidate'
+        self.response.headers['Expires'] = ''
+        self.response.headers['Last-Modified'] = lastModifiedTime.strftime('%a, %d %b %Y %H:%M:%S GMT')
     
 
 class Messages(webapp.RequestHandler):
@@ -63,6 +69,9 @@ class Messages(webapp.RequestHandler):
 
     message.content = content
     message.put()
+
+    memcache.add("last_message_posted_at", datetime.datetime.utcnow())    
+
     self.redirect('/')
 
   def get(self):
@@ -79,6 +88,11 @@ class Messages(webapp.RequestHandler):
 
     path = os.path.join(os.path.dirname(__file__), '_messages.html')
     self.response.out.write(template.render(path, template_values))
+    lastModifiedTime = memcache.get("last_message_posted_at") 
+    if lastModifiedTime is not None:
+        self.response.headers['Cache-Control'] = 'must-revalidate'
+        self.response.headers['Expires'] = ''
+        self.response.headers['Last-Modified'] = lastModifiedTime.strftime('%a, %d %b %Y %H:%M:%S GMT')
   
 
 application = webapp.WSGIApplication(
