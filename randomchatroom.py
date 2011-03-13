@@ -14,14 +14,14 @@ class Message(db.Model):
   author = db.UserProperty()
   content = db.StringProperty(multiline=True)
   date = db.DateTimeProperty(auto_now_add=True)
-  Alias = db.StringProperty()
+  alias = db.StringProperty()
 
 
 class MessageView:
   def __init__(self, message):
     self.message = message
-    if message.Alias:
-      self.author = message.Alias
+    if message.alias:
+      self.author = message.alias
     else:
       self.author = "A monkey"
 
@@ -36,21 +36,12 @@ class MainPage(webapp.RequestHandler):
     messages_query = Message.all().order('-date')
     messages = messages_query.fetch(50)
 
-    #if users.get_current_user():
-    #  url = users.create_logout_url(self.request.uri)
-    #  url_linktext = 'Logout'
-    #else:
-    #  url = users.create_login_url(self.request.uri)
-    #  url_linktext = 'Login if you want'
-
     message_views = []
     for message in messages:
        message_views.append(MessageView(message))
 
     template_values = {
       'messages': message_views,
-    #  'url': url,
-    #  'url_linktext': url_linktext,
       }
 
     path = os.path.join(os.path.dirname(__file__), 'index.html')
@@ -60,9 +51,7 @@ class MainPage(webapp.RequestHandler):
 class Messages(webapp.RequestHandler):
   def post(self):
     message = Message()
-
-
-    message.Alias = self.request.get('Alias')
+    message.alias = self.request.get('alias')
 
     content = self.request.get('content')
 
