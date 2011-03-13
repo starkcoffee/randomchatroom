@@ -34,17 +34,7 @@ class MessageView:
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    messages_query = Message.all().order('-date')
-    messages = messages_query.fetch(50)
-
-    message_views = []
-    for message in messages:
-       message_views.append(MessageView(message))
-
-    template_values = {
-      'messages': message_views,
-      }
-
+    template_values = {}
     path = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(path, template_values))
     lastModifiedTime = memcache.get("last_message_posted_at") 
