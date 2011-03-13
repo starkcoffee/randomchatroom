@@ -67,7 +67,7 @@ class Messages(webapp.RequestHandler):
     content = self.request.get('content')
 
 	#This really needs a better method that doesn't 'dirty' the coding.
-    rudish_words = ["COCK", "DICK", "CUNT", "FUCK", "ANUS", "VAGINA", "BITCH", "WHORE", "FAG", "RAPIST", "RAPE", "SLUT", "PENIS", "SHIT"]
+    rudish_words = ["COCK", "DICK", "CUNT", "FUCK", "ANUS", "VAGINA", "BITCH", "WHORE", "FAG", "RAPIST", "RAPE", "SLUT", "PENIS", "SHIT", "CUM", "TITS"]
     for word in rudish_words:
         pattern = re.compile(word,re.IGNORECASE)
         content = re.sub(pattern,'Banana',content)
