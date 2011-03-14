@@ -37,16 +37,10 @@ class MessageView:
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    logging.info("******" + self.request.path)
-    pattern = re.compile("room=(\w+)",re.I)
-    search = re.search(pattern, self.request.query_string)
-    #CEWKIEZ
-    cookie = Cookie.SimpleCookie()
-    cookie["room"]="WUT"
-    if search: cookie["room"] = search.group(1).upper()
-    else: cookie["room"] = "NONE"
-    
-    template_values = {}
+    room = self.request.path
+    logging.info("****** room is " + room)
+
+    template_values = {'room' : room}
     path = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(path, template_values))
 
@@ -73,14 +67,6 @@ class Messages(webapp.RequestHandler):
   def post(self):
     message = Message()
     
-    cookieRoom = self.request.cookies.get('room')
-    if not cookieRoom:
-        cookie = Cookie.SimpleCookie()
-        cookie["room"] = "NONE"
-        print cookie
-        
-    cookieRoom = self.request.cookies.get('room') #Make sure we have a value
-    
     alias = self.request.get('alias')
     if alias:        
         cookie = Cookie.SimpleCookie()
@@ -96,9 +82,6 @@ class Messages(webapp.RequestHandler):
     message.put()
 
     memcache.set("last_message_posted_at", datetime.datetime.utcnow())  
-    
-    if cookieRoom != "NONE":
-        path = '/?room=' + cookieRoom
     
     self.redirect(path)
 
@@ -140,7 +123,7 @@ class Foo(webapp.RequestHandler):
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
                                       ('/messages', Messages),
-                                      ('/.*', Foo)],
+                                      ('/.*', MainPage)],
                                      debug=True)
 
 def main():
