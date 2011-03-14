@@ -57,7 +57,7 @@ def filter(string):
         pattern = re.compile(word,re.IGNORECASE | re.VERBOSE)
         string = re.sub(pattern,'banana',string)
     return string
-
+#BEWBS
 class Messages(webapp.RequestHandler):
   def post(self):
     message = Message()
