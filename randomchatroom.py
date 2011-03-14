@@ -37,6 +37,7 @@ class MessageView:
 
 class MainPage(webapp.RequestHandler):
   def get(self):
+    logging.info("******" + self.request.path)
     pattern = re.compile("room=(\w+)",re.I)
     search = re.search(pattern, self.request.query_string)
     #CEWKIEZ
@@ -66,6 +67,7 @@ def filter(string):
         pattern = re.compile(word,re.IGNORECASE | re.VERBOSE)
         string = re.sub(pattern,'banana',string)
     return string
+
 
 class Messages(webapp.RequestHandler):
   def post(self):
@@ -130,10 +132,15 @@ class Messages(webapp.RequestHandler):
     self.response.headers['Expires'] = ''
     self.response.headers['Last-Modified'] = lastModifiedTime.strftime('%a, %d %b %Y %H:%M:%S GMT')
   
+class Foo(webapp.RequestHandler):
+    def get(self):
+        self.response.out.write("hi the path was " + self.request.path)
+
 
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
-                                      ('/messages', Messages)],
+                                      ('/messages', Messages),
+                                      ('/.*', Foo)],
                                      debug=True)
 
 def main():
