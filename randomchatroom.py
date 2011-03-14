@@ -69,6 +69,7 @@ class Messages(webapp.RequestHandler):
         print cookie 
     elif self.request.cookies.get('alias'):
         alias = self.request.cookies.get('alias')
+        alias = alias.replace('"','')
 
     content = self.request.get('content')
 
