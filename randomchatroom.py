@@ -37,27 +37,18 @@ class MainPage(webapp.RequestHandler):
     messages_query = Message.all().order('-date')
     messages = messages_query.fetch(50)
 
-    #if users.get_current_user():
-    #  url = users.create_logout_url(self.request.uri)
-    #  url_linktext = 'Logout'
-    #else:
-    #  url = users.create_login_url(self.request.uri)
-    #  url_linktext = 'Login if you want'
-
     message_views = []
     for message in messages:
        message_views.append(MessageView(message))
 
     template_values = {
       'messages': message_views,
-    #  'url': url,
-    #  'url_linktext': url_linktext,
       }
 
     path = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(path, template_values))
 
-def GetFilter():
+def getFilter():
     words = memcache.get("rudish_words")
     if words is not None:
         return words
@@ -65,14 +56,14 @@ def GetFilter():
         file = open("filter","r")
         words = file.readlines()
         file.close()
-        memcache.add("rudish_words",words,0)
+        memcache.add("rudish_words",words,600)
         return words
 
-def Filter(string):
-    rudish_words = GetFilter()
-    for word in rudish_words:
+def filter(string):
+    rudishWords = getFilter()
+    for word in rudishWords:
         pattern = re.compile(word,re.IGNORECASE | re.VERBOSE)
-        string = re.sub(pattern,'Banana',string)
+        string = re.sub(pattern,'banana',string)
     return string
 
 class Messages(webapp.RequestHandler):
@@ -80,9 +71,9 @@ class Messages(webapp.RequestHandler):
     message = Message()
 
 
-    message.Alias = Filter(self.request.get('Alias'))
+    message.Alias = filter(self.request.get('Alias'))
 
-    content = Filter(self.request.get('content'))
+    content = filter(self.request.get('content'))
 
     message.content = content
     message.put()
