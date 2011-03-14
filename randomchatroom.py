@@ -67,6 +67,7 @@ class Messages(webapp.RequestHandler):
   def post(self):
     message = Message()
     
+    room = self.request.get('room')
     alias = self.request.get('alias')
     if alias:        
         cookie = Cookie.SimpleCookie()
@@ -83,7 +84,7 @@ class Messages(webapp.RequestHandler):
 
     memcache.set("last_message_posted_at", datetime.datetime.utcnow())  
     
-    self.redirect(path)
+    self.redirect(room)
 
   def get(self):
     lastModifiedTime = memcache.get("last_message_posted_at") 
@@ -115,10 +116,6 @@ class Messages(webapp.RequestHandler):
     self.response.headers['Expires'] = ''
     self.response.headers['Last-Modified'] = lastModifiedTime.strftime('%a, %d %b %Y %H:%M:%S GMT')
   
-class Foo(webapp.RequestHandler):
-    def get(self):
-        self.response.out.write("hi the path was " + self.request.path)
-
 
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
