@@ -3,6 +3,7 @@ import os
 import re
 import datetime
 import logging
+import Cookie
 
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -20,23 +21,34 @@ class Message(db.Model):
 
 class MessageView:
   def __init__(self, message):
+    cookie = Cookie.SimpleCookie()
     self.message = message
     if message.alias:
       self.author = message.alias
+      cookie["session"] = message.alias
     else:
-      self.author = "A monkey"
+      cookie_string = os.environ.get('HTTP_COOKIE')
+      cookie.load(cookie_string)
+      self.author = cookie["session"].value
 
     now = datetime.datetime.now()
     timedelta = now - message.date
     self.ago_minutes = timedelta.seconds / 60
     self.content = message.content
 
+    if timedelta.seconds < 3:      #this is cause im lazy, just makes sure it only takes the alias of your post
+      print cookie
 
 class MainPage(webapp.RequestHandler):
   def get(self):
+    cookie = Cookie.SimpleCookie()
     template_values = {}
     path = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(path, template_values))
+    cookie_string = os.environ.get('HTTP_COOKIE')
+    if not cookie_string:
+      cookie["session"] = "A monkey"
+      print cookie
 
 class Messages(webapp.RequestHandler):
   def post(self):
