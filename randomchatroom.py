@@ -21,39 +21,38 @@ class Message(db.Model):
 
 class MessageView:
   def __init__(self, message):
-    cookie = Cookie.SimpleCookie()
     self.message = message
     if message.alias:
       self.author = message.alias
-      cookie["session"] = message.alias
     else:
-      cookie_string = os.environ.get('HTTP_COOKIE')
-      cookie.load(cookie_string)
-      self.author = cookie["session"].value
+      self.author = "A monkey"
 
     now = datetime.datetime.now()
     timedelta = now - message.date
     self.ago_minutes = timedelta.seconds / 60
     self.content = message.content
 
-    if timedelta.seconds < 2:      #this is cause im lazy, just makes sure it only takes the alias of your post
-      print cookie
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    cookie = Cookie.SimpleCookie()
     template_values = {}
     path = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(path, template_values))
-    cookie_string = os.environ.get('HTTP_COOKIE')
-    if not cookie_string:
-      cookie["session"] = "A monkey"
-      print cookie
+    logging.info("******* cookie:" + str(self.request.cookies))
 
 class Messages(webapp.RequestHandler):
   def post(self):
     message = Message()
-    message.alias = self.request.get('alias')
+    cookie = Cookie.SimpleCookie()
+    
+    if self.request.get('alias'):        
+        message.alias = self.request.get('alias')
+    elif os.environ.get('HTTP_COOKIE'):
+        cookie_string = os.environ.get('HTTP_COOKIE')
+        cookie.load(cookie_string)
+        message.alias = cookie["alias"].value
+    else:
+        message.alias = "A monkey"
 
     content = self.request.get('content')
 
