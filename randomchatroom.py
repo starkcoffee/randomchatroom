@@ -2,7 +2,7 @@ import cgi
 import os
 import re
 import datetime
-from django.utils import simplejson
+import logging
 
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -37,12 +37,6 @@ class MainPage(webapp.RequestHandler):
     template_values = {}
     path = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(path, template_values))
-    lastModifiedTime = memcache.get("last_message_posted_at") 
-    if lastModifiedTime is not None:
-        self.response.headers['Cache-Control'] = 'must-revalidate'
-        self.response.headers['Expires'] = ''
-        self.response.headers['Last-Modified'] = lastModifiedTime.strftime('%a, %d %b %Y %H:%M:%S GMT')
-    
 
 class Messages(webapp.RequestHandler):
   def post(self):
@@ -60,11 +54,22 @@ class Messages(webapp.RequestHandler):
     message.content = content
     message.put()
 
-    memcache.add("last_message_posted_at", datetime.datetime.utcnow())    
+    memcache.set("last_message_posted_at", datetime.datetime.utcnow())    
 
     self.redirect('/')
 
   def get(self):
+    lastModifiedTime = memcache.get("last_message_posted_at") 
+
+    # would be nice to initialize lastModifiedTime in memcache on app startup somehow so we dont need the None check
+    if lastModifiedTime is None:
+        lastModifiedTime = datetime.datetime.utcnow()
+        memcache.set("last_message_posted_at", datetime.datetime.utcnow())    
+
+    if self.request.headers.get('If-Modified-Since') == lastModifiedTime.strftime('%a, %d %b %Y %H:%M:%S GMT'): 
+        return self.response.set_status(304) 
+    
+
     messages_query = Message.all().order('-date')
     messages = messages_query.fetch(50)
 
@@ -78,11 +83,9 @@ class Messages(webapp.RequestHandler):
 
     path = os.path.join(os.path.dirname(__file__), '_messages.html')
     self.response.out.write(template.render(path, template_values))
-    lastModifiedTime = memcache.get("last_message_posted_at") 
-    if lastModifiedTime is not None:
-        self.response.headers['Cache-Control'] = 'must-revalidate'
-        self.response.headers['Expires'] = ''
-        self.response.headers['Last-Modified'] = lastModifiedTime.strftime('%a, %d %b %Y %H:%M:%S GMT')
+    self.response.headers['Cache-Control'] = 'must-revalidate'
+    self.response.headers['Expires'] = ''
+    self.response.headers['Last-Modified'] = lastModifiedTime.strftime('%a, %d %b %Y %H:%M:%S GMT')
   
 
 application = webapp.WSGIApplication(
