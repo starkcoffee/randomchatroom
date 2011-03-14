@@ -67,6 +67,10 @@ class Messages(webapp.RequestHandler):
 
     memcache.set("last_message_posted_at", datetime.datetime.utcnow())    
 
+    # this sets the cookie
+    cookie["alias"] = message.alias
+    print cookie
+
     self.redirect('/')
 
   def get(self):
