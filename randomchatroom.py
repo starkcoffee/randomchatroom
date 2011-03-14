@@ -36,7 +36,7 @@ class MessageView:
     self.ago_minutes = timedelta.seconds / 60
     self.content = message.content
 
-    if timedelta.seconds < 3:      #this is cause im lazy, just makes sure it only takes the alias of your post
+    if timedelta.seconds < 2:      #this is cause im lazy, just makes sure it only takes the alias of your post
       print cookie
 
 class MainPage(webapp.RequestHandler):
