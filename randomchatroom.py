@@ -18,6 +18,7 @@ class Message(db.Model):
   content = db.StringProperty(multiline=True)
   date = db.DateTimeProperty(auto_now_add=True)
   alias = db.StringProperty()
+  room = db.StringProperty()
 
 
 class MessageView:
@@ -36,6 +37,14 @@ class MessageView:
 
 class MainPage(webapp.RequestHandler):
   def get(self):
+    pattern = re.compile("room=(\w+)",re.I)
+    search = re.search(pattern, self.request.query_string)
+    #CEWKIEZ
+    cookie = Cookie.SimpleCookie()
+    cookie["room"]="WUT"
+    if search: cookie["room"] = search.group(1).upper()
+    else: cookie["room"] = "NONE"
+    
     template_values = {}
     path = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(path, template_values))
@@ -62,6 +71,14 @@ class Messages(webapp.RequestHandler):
   def post(self):
     message = Message()
     
+    cookieRoom = self.request.cookies.get('room')
+    if not cookieRoom:
+        cookie = Cookie.SimpleCookie()
+        cookie["room"] = "NONE"
+        print cookie
+        
+    cookieRoom = self.request.cookies.get('room') #Make sure we have a value
+    
     alias = self.request.get('alias')
     if alias:        
         cookie = Cookie.SimpleCookie()
@@ -76,9 +93,12 @@ class Messages(webapp.RequestHandler):
     message.content = filter(self.request.get('content'))
     message.put()
 
-    memcache.set("last_message_posted_at", datetime.datetime.utcnow())    
-
-    self.redirect('/')
+    memcache.set("last_message_posted_at", datetime.datetime.utcnow())  
+    
+    if cookieRoom != "NONE":
+        path = '/?room=' + cookieRoom
+    
+    self.redirect(path)
 
   def get(self):
     lastModifiedTime = memcache.get("last_message_posted_at") 
@@ -91,8 +111,9 @@ class Messages(webapp.RequestHandler):
     if self.request.headers.get('If-Modified-Since') == lastModifiedTime.strftime('%a, %d %b %Y %H:%M:%S GMT'): 
         return self.response.set_status(304) 
     
-
-    messages_query = Message.all().order('-date')
+    #messages_query = Message.all().order('-date')
+    cookieRoom = self.request.cookies.get('room')
+    messages_query = db.GqlQuery("SELECT * FROM Message WHERE room = :1 ORDER BY date DESC",cookieRoom)
     messages = messages_query.fetch(50)
 
     message_views = []
