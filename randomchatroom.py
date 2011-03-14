@@ -6,6 +6,7 @@ import logging
 import Cookie
 
 from google.appengine.api import users
+from google.appengine.api import memcache
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
@@ -39,30 +40,40 @@ class MainPage(webapp.RequestHandler):
     path = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(path, template_values))
 
+def getFilter():
+    words = memcache.get("rudish_words")
+    if words is not None:
+        return words
+    else:
+        file = open("filter","r")
+        words = file.readlines()
+        file.close()
+        memcache.add("rudish_words",words,600)
+        return words
+
+def filter(string):
+    rudishWords = getFilter()
+    for word in rudishWords:
+        pattern = re.compile(word,re.IGNORECASE | re.VERBOSE)
+        string = re.sub(pattern,'banana',string)
+    return string
+
 class Messages(webapp.RequestHandler):
   def post(self):
     message = Message()
     
-    cookieAlias = self.request.cookies.get('alias')
-    if self.request.get('alias'):        
-        message.alias = self.request.get('alias')
-
-        #update cookie
+    alias = self.request.get('alias')
+    if alias:        
         cookie = Cookie.SimpleCookie()
-        cookie["alias"] = message.alias
+        cookie['alias'] = alias
         print cookie 
-    elif cookieAlias:
-        message.alias = cookieAlias
+    elif self.request.cookies.get('alias'):
+        alias = self.request.cookies.get('alias')
 
     content = self.request.get('content')
 
-	#This really needs a better method that doesn't 'dirty' the coding.
-    rudish_words = ["COCK", "DICK", "CUNT", "FUCK", "ANUS", "VAGINA", "BITCH", "WHORE", "FAG", "RAPIST", "RAPE", "SLUT", "PENIS", "SHIT", "CUM", "TITS"]
-    for word in rudish_words:
-        pattern = re.compile(word,re.IGNORECASE)
-        content = re.sub(pattern,'Banana',content)
-
-    message.content = content
+    message.alias = filter(alias)
+    message.content = filter(self.request.get('content'))
     message.put()
 
     memcache.set("last_message_posted_at", datetime.datetime.utcnow())    
