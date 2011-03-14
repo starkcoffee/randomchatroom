@@ -38,21 +38,21 @@ class MainPage(webapp.RequestHandler):
     template_values = {}
     path = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(path, template_values))
-    logging.info("******* cookie:" + str(self.request.cookies))
 
 class Messages(webapp.RequestHandler):
   def post(self):
     message = Message()
-    cookie = Cookie.SimpleCookie()
     
+    cookieAlias = self.request.cookies.get('alias')
     if self.request.get('alias'):        
         message.alias = self.request.get('alias')
-    elif os.environ.get('HTTP_COOKIE'):
-        cookie_string = os.environ.get('HTTP_COOKIE')
-        cookie.load(cookie_string)
-        message.alias = cookie["alias"].value
-    else:
-        message.alias = "A monkey"
+
+        #update cookie
+        cookie = Cookie.SimpleCookie()
+        cookie["alias"] = message.alias
+        print cookie 
+    elif cookieAlias:
+        message.alias = cookieAlias
 
     content = self.request.get('content')
 
@@ -66,10 +66,6 @@ class Messages(webapp.RequestHandler):
     message.put()
 
     memcache.set("last_message_posted_at", datetime.datetime.utcnow())    
-
-    # this sets the cookie
-    cookie["alias"] = message.alias
-    print cookie
 
     self.redirect('/')
 
