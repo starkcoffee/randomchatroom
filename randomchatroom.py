@@ -55,7 +55,7 @@ class Messages(webapp.RequestHandler):
     if alias:        
         cookie = Cookie.SimpleCookie()
         cookie['alias'] = alias
-        # print cookie 
+        print cookie 
     elif self.request.cookies.get('alias'):
         alias = self.request.cookies.get('alias')
         alias = alias.lstrip('"')
