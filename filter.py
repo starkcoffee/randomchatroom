@@ -19,7 +19,7 @@ def length(string):
 	split = string.split(" ")
 	string = ""
 	for s in split:
-		if len(s) < 30:
+		if len(s) < 69:
 			split[split.index(s)] = []
 			string = string + s + " "
 	string = string.strip()
