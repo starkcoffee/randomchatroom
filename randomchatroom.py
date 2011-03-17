@@ -39,8 +39,8 @@ class MessageView:
 class MainPage(webapp.RequestHandler):
   def get(self):
 	alias = self.request.cookies.get('alias')
-	if alias:
-		alias = alias[:len(alias)]
+	if alias: alias = alias[:len(alias)]
+	else: alias = ""
 	room = self.request.path
 	logging.info("****** room is " + room)
 	
