@@ -4,6 +4,7 @@ import re
 import datetime
 import logging
 import Cookie
+import filter
 
 from google.appengine.api import users
 from google.appengine.api import memcache
@@ -44,24 +45,6 @@ class MainPage(webapp.RequestHandler):
     path = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(path, template_values))
 
-def getFilter():
-    words = memcache.get("rudish_words")
-    if words is not None:
-        return words
-    else:
-        file = open("filter","r")
-        words = file.readlines()
-        file.close()
-        memcache.add("rudish_words",words,600)
-        return words
-
-def filter(string):
-    rudishWords = getFilter()
-    for word in rudishWords:
-        pattern = re.compile(word,re.IGNORECASE | re.VERBOSE)
-        string = re.sub(pattern,'banana',string)
-    return string
-
 
 class Messages(webapp.RequestHandler):
   def post(self):
@@ -78,8 +61,8 @@ class Messages(webapp.RequestHandler):
 
     content = self.request.get('content')
 
-    message.alias = filter(alias)
-    message.content = filter(self.request.get('content'))
+    message.alias = filter.all(alias)
+    message.content = filter.all(self.request.get('content'),alias)
     message.put()
 
     memcache.set("last_message_posted_at", datetime.datetime.utcnow())  
@@ -97,9 +80,10 @@ class Messages(webapp.RequestHandler):
     if self.request.headers.get('If-Modified-Since') == lastModifiedTime.strftime('%a, %d %b %Y %H:%M:%S GMT'): 
         return self.response.set_status(304) 
     
-    #messages_query = Message.all().order('-date')
-    cookieRoom = self.request.cookies.get('room')
-    messages_query = db.GqlQuery("SELECT * FROM Message WHERE room = :1 ORDER BY date DESC",cookieRoom)
+    messages_query = Message.all().order('-date')
+    #cookieRoom = self.request.cookies.get('room')
+    #messages_query = db.GqlQuery("SELECT * FROM Message WHERE room = :1 ORDER BY date DESC",cookieRoom)
+    # print cookieRoom
     messages = messages_query.fetch(50)
 
     message_views = []
