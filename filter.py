@@ -4,6 +4,17 @@ import Cookie
 
 from google.appengine.api import memcache
 
+#Deletes strings that are too long.
+def length(string):
+	split = string.split(" ")
+	string = ""
+	for s in split:
+		if len(s) < 120:
+			split[split.index(s)] = []
+			string = string + s + " "
+	string = string.strip()
+	return string
+    
 def getSwears():
     words = memcache.get("rudish_words")
     if words is not None:
@@ -14,24 +25,26 @@ def getSwears():
         file.close()
         memcache.add("rudish_words",words,600)
         return words
-
-def length(string):
-	split = string.split(" ")
-	string = ""
-	for s in split:
-		if len(s) < 120:
-			split[split.index(s)] = []
-			string = string + s + " "
-	string = string.strip()
-	return string
-		
+        
+#Deletes swears
 def swears(string):
     rudishWords = getSwears()
     for word in rudishWords:
         pattern = re.compile(word,re.IGNORECASE | re.VERBOSE)
         string = re.sub(pattern,'banana',string)
     return string
-    
+
+#@Name Matching, because I could and it was suggested. =3
+def twitter(string,name):
+    pattern = "\A@(\w+)"
+    search = re.search(pattern,string)
+    if search:
+        find = re.compile(search.group(1),re.I)
+        if re.search(find,name):
+            string = re.sub(find,"<blink><font color='red'>@"+ name +"</font></blink>",string)[1:]
+    return string
+
+#Deletes swears and highlights links
 def html(string, extra=""):
 	string = cgi.escape(string)
 
@@ -90,15 +103,6 @@ def html(string, extra=""):
 	##            print tags[loopCnt]
 	##        loopCnt += 1
 	##else: text = string
-
-	#@Name Matching, because I could and it was suggested. =3
-	pattern = "\A@(\w+)"
-	search = re.search(pattern,string)
-	if search:
-		find = re.compile(search.group(1),re.I)
-		myName = extra
-		if re.search(find,myName):
-			string = re.sub(find,"<blink><font color='red'>@"+ myName +"</font></blink>",string)[1:]
 	
 	#IMG showing (Shh, it's a secret to all the foreigners. =3)
 	pattern = re.compile("img:(\S+)",re.I)

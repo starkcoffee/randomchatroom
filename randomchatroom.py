@@ -23,18 +23,17 @@ class Message(db.Model):
 
 
 class MessageView:
-  def __init__(self, message):
-	self.message = message
-	if message.alias:
-	  self.author = message.alias
-	else:
-	  self.author = "A monkey"
+  def __init__(self, message, name):
+    self.message = message
+    if message.alias:
+        self.author = message.alias
+    else:
+        self.author = "A monkey"
 
-	now = datetime.datetime.now()
-	timedelta = now - message.date
-	self.ago_minutes = timedelta.seconds / 60
-	self.content = message.content
-
+    now = datetime.datetime.now()
+    timedelta = now - message.date
+    self.ago_minutes = timedelta.seconds / 60
+    self.content = filter.twitter(message.content,name)
 
 class MainPage(webapp.RequestHandler):
   def get(self):
@@ -51,31 +50,31 @@ class MainPage(webapp.RequestHandler):
 
 class Messages(webapp.RequestHandler):
   def post(self):
-	message = Message()
-		
-	room = self.request.get('room')
-	alias = self.request.get('alias')
-	if alias:
-		alias = alias.lstrip('"')
-		alias = alias.rstrip('"')
-		cookie = Cookie.SimpleCookie()
-		cookie['alias'] = alias
-		print cookie 
-	elif self.request.cookies.get('alias'):
-		alias = self.request.cookies.get('alias')
-		alias = alias.lstrip('"')
-		alias = alias.rstrip('"')
-		
-	content = self.request.get('content')
+    message = Message()
+      
+    room = self.request.get('room')
+    alias = self.request.get('alias')
+    if alias:
+      alias = alias.lstrip('"')
+      alias = alias.rstrip('"')
+      cookie = Cookie.SimpleCookie()
+      cookie['alias'] = alias
+      print cookie 
+    elif self.request.cookies.get('alias'):
+      alias = self.request.cookies.get('alias')
+      alias = alias.lstrip('"')
+      alias = alias.rstrip('"')
+      
+    content = self.request.get('content')
 
-	message.alias = filter.all(alias)
-	message.content = filter.all(self.request.get('content'),alias)
-	if message.content:
-		message.put()
+    message.alias = filter.all(alias)
+    message.content = filter.all(self.request.get('content'),alias)
+    if message.content:
+      message.put()
 
-		memcache.set("last_message_posted_at", datetime.datetime.utcnow())  
-		
-	self.redirect('/') #room)
+      memcache.set("last_message_posted_at", datetime.datetime.utcnow())  
+      
+    self.redirect('/') #room)
 
   def get(self):
 		
@@ -96,8 +95,9 @@ class Messages(webapp.RequestHandler):
     messages = messages_query.fetch(50)
 
     message_views = []
+    alias = self.request.cookies.get('alias')
     for message in messages:
-       message_views.append(MessageView(message))
+       message_views.append(MessageView(message,alias)) #Adapting for Twitter style.
 
     template_values = {
       'messages': message_views,
