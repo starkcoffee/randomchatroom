@@ -15,6 +15,15 @@ def getSwears():
         memcache.add("rudish_words",words,600)
         return words
 
+def length(string):
+	split = string.split(" ")
+	string = ""
+	for s in split:
+		if len(s) < 30:
+			split[split.index(s)] = []
+			string = string + s + " "
+	return string
+		
 def swears(string):
     rudishWords = getSwears()
     for word in rudishWords:
@@ -23,6 +32,7 @@ def swears(string):
     return string
     
 def html(string, extra=""):
+#	string = re.sub("[\"|\\]","",string)
 	string = cgi.escape(string)
 
 	####       TAG REPLACEMENT METHOD       ####
@@ -93,31 +103,32 @@ def html(string, extra=""):
 	#IMG showing (Shh, it's a secret to all the foreigners. =3)
 	pattern = re.compile("img:(\S+)",re.I)
 	search = re.search(pattern,string)
+	# if search:
+		# url = search.group(1)
+		# if re.search("https://",url):
+			# code = "<img src='" + url + "' alt='Image' />"
+		# else:
+			# url = re.sub("http://","",url)
+			# code = "<img src='http://" + url + "' alt='Image' />"
+		# string = re.sub(pattern, code, string)
+	# else:
+	#URL matching
+	pattern = "((?:(?:http[s]?://)|(?:www.))(?:\S+))[\w]"
+	search = re.search(pattern,string)
 	if search:
-		url = search.group(1)
-		if re.search("https://",url):
-			code = "<img src='" + url + "' alt='Image' />"
-		else:
-			url = re.sub("http://","",url)
-			code = "<img src='http://" + url + "' alt='Image' />"
-		string = re.sub(pattern, code, string)
-	else:
-		#URL matching
-		pattern = "((?:(?:http[s]?://)|(?:www.))(?:\S+))[\w]"
-		search = re.search(pattern,string)
-		if search:
-			url = search.group(0)
-			if search.group(1) != None:
-				if re.search("https://",url):
-					url = "https://"+re.sub("https://","",url)
-					code = "<a href='" + url + "'>"+url+"</a>"
-				else:
-					url = re.sub("http://","",url)
-					code = "<a href='http://" + url + "'>"+url+"</a>"
-				string = re.sub(pattern, code, string)
+		url = search.group(0)
+		if search.group(1) != None:
+			if re.search("https://",url):
+				url = "https://"+re.sub("https://","",url)
+				code = "<a href='" + url + "'>"+url+"</a>"
+			else:
+				url = re.sub("http://","",url)
+				code = "<a href='http://" + url + "'>"+url+"</a>"
+			string = re.sub(pattern, code, string)
 	return string
 	
 def all(string,extra=""):
 	string = swears(string)
 	string = html(string,extra)
+	string = length(string)
 	return string
