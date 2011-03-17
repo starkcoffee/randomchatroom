@@ -70,7 +70,7 @@ $(document).ready(ajaxUpdate)
     <div>Hi! Please write something! Press enter to submit.</div>
     <form action="/messages" method="post">
         <div><textarea name="content" rows="3" cols="60" required="required" onKeyPress="return submitenter(this,event)"></textarea></div>
-		Alias: <input type="text" name="alias"/><input type="submit" value="Submit">
+		Alias: <input type="text" name="alias" value={{alias}} /><input type="submit" value="Submit">
     </form>
     <br/>
 

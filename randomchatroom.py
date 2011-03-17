@@ -38,12 +38,15 @@ class MessageView:
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    room = self.request.path
-    logging.info("****** room is " + room)
-
-    template_values = {'room' : room}
-    path = os.path.join(os.path.dirname(__file__), 'index.html')
-    self.response.out.write(template.render(path, template_values))
+	alias = self.request.cookies.get('alias')
+	if alias:
+		alias = alias[:len(alias)]
+	room = self.request.path
+	logging.info("****** room is " + room)
+	
+	template_values = {'alias' : alias, 'room' : room}
+	path = os.path.join(os.path.dirname(__file__), 'index.html')
+	self.response.out.write(template.render(path, template_values))
 
 
 class Messages(webapp.RequestHandler):
@@ -73,6 +76,7 @@ class Messages(webapp.RequestHandler):
     self.redirect('/') #room)
 
   def get(self):
+		
     lastModifiedTime = memcache.get("last_message_posted_at") 
 
     # would be nice to initialize lastModifiedTime in memcache on app startup somehow so we dont need the None check
