@@ -24,23 +24,23 @@ class Message(db.Model):
 
 class MessageView:
   def __init__(self, message):
-    self.message = message
-    if message.alias:
-      self.author = message.alias
-    else:
-      self.author = "A monkey"
+	self.message = message
+	if message.alias:
+	  self.author = message.alias
+	else:
+	  self.author = "A monkey"
 
-    now = datetime.datetime.now()
-    timedelta = now - message.date
-    self.ago_minutes = timedelta.seconds / 60
-    self.content = message.content
+	now = datetime.datetime.now()
+	timedelta = now - message.date
+	self.ago_minutes = timedelta.seconds / 60
+	self.content = message.content
 
 
 class MainPage(webapp.RequestHandler):
   def get(self):
 	alias = self.request.cookies.get('alias')
-	if alias: alias = alias[:len(alias)]
-	else: alias = ""
+	if not alias: alias = ""
+	
 	room = self.request.path
 	logging.info("****** room is " + room)
 	
@@ -55,7 +55,9 @@ class Messages(webapp.RequestHandler):
 		
 	room = self.request.get('room')
 	alias = self.request.get('alias')
-	if alias:        
+	if alias:
+		alias = alias.lstrip('"')
+		alias = alias.rstrip('"')
 		cookie = Cookie.SimpleCookie()
 		cookie['alias'] = alias
 		print cookie 
@@ -63,7 +65,6 @@ class Messages(webapp.RequestHandler):
 		alias = self.request.cookies.get('alias')
 		alias = alias.lstrip('"')
 		alias = alias.rstrip('"')
-		alias = alias.replace('\\"','"')
 		
 	content = self.request.get('content')
 

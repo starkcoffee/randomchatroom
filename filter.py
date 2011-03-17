@@ -22,6 +22,7 @@ def length(string):
 		if len(s) < 30:
 			split[split.index(s)] = []
 			string = string + s + " "
+	string = string.strip()
 	return string
 		
 def swears(string):
@@ -32,7 +33,6 @@ def swears(string):
     return string
     
 def html(string, extra=""):
-#	string = re.sub("[\"|\\]","",string)
 	string = cgi.escape(string)
 
 	####       TAG REPLACEMENT METHOD       ####
@@ -125,10 +125,11 @@ def html(string, extra=""):
 				url = re.sub("http://","",url)
 				code = "<a href='http://" + url + "'>"+url+"</a>"
 			string = re.sub(pattern, code, string)
+	#print string
 	return string
 	
 def all(string,extra=""):
 	string = swears(string)
-	string = html(string,extra)
 	string = length(string)
+	string = html(string,extra)
 	return string
