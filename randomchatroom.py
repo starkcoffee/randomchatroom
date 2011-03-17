@@ -33,6 +33,7 @@ class MessageView:
     now = datetime.datetime.now()
     timedelta = now - message.date
     self.ago_minutes = timedelta.seconds / 60
+    if name == None: name = ""
     self.content = filter.twitter(message.content,name)
 
 class MainPage(webapp.RequestHandler):
