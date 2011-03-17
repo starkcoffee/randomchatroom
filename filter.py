@@ -95,8 +95,11 @@ def html(string, extra=""):
 	search = re.search(pattern,string)
 	if search:
 		url = search.group(1)
-		url = re.sub("http://","",url)
-		code = "<img src='http://" + url + "' alt='Image' />"
+		if re.search("https://",url):
+			code = "<img src='" + url + "' alt='Image' />"
+		else:
+			url = re.sub("http://","",url)
+			code = "<img src='http://" + url + "' alt='Image' />"
 		string = re.sub(pattern, code, string)
 	else:
 		#URL matching

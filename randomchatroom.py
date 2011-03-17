@@ -55,7 +55,7 @@ class Messages(webapp.RequestHandler):
     if alias:        
         cookie = Cookie.SimpleCookie()
         cookie['alias'] = alias
-        print cookie 
+        # print cookie 
     elif self.request.cookies.get('alias'):
         alias = self.request.cookies.get('alias')
         alias = alias.lstrip('"')
@@ -70,7 +70,7 @@ class Messages(webapp.RequestHandler):
 
     memcache.set("last_message_posted_at", datetime.datetime.utcnow())  
     
-    self.redirect(room)
+    self.redirect('/') #room)
 
   def get(self):
     lastModifiedTime = memcache.get("last_message_posted_at") 
