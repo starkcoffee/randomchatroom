@@ -51,29 +51,30 @@ class MainPage(webapp.RequestHandler):
 
 class Messages(webapp.RequestHandler):
   def post(self):
-    message = Message()
-    
-    room = self.request.get('room')
-    alias = self.request.get('alias')
-    if alias:        
-        cookie = Cookie.SimpleCookie()
-        cookie['alias'] = alias
-        print cookie 
-    elif self.request.cookies.get('alias'):
-        alias = self.request.cookies.get('alias')
-        alias = alias.lstrip('"')
-        alias = alias.rstrip('"')
-        alias = alias.replace('\\"','"')
+	message = Message()
+		
+	room = self.request.get('room')
+	alias = self.request.get('alias')
+	if alias:        
+		cookie = Cookie.SimpleCookie()
+		cookie['alias'] = alias
+		print cookie 
+	elif self.request.cookies.get('alias'):
+		alias = self.request.cookies.get('alias')
+		alias = alias.lstrip('"')
+		alias = alias.rstrip('"')
+		alias = alias.replace('\\"','"')
+		
+	content = self.request.get('content')
 
-    content = self.request.get('content')
+	message.alias = filter.all(alias)
+	message.content = filter.all(self.request.get('content'),alias)
+	if message.content:
+		message.put()
 
-    message.alias = filter.all(alias)
-    message.content = filter.all(self.request.get('content'),alias)
-    message.put()
-
-    memcache.set("last_message_posted_at", datetime.datetime.utcnow())  
-    
-    self.redirect('/') #room)
+		memcache.set("last_message_posted_at", datetime.datetime.utcnow())  
+		
+	self.redirect('/') #room)
 
   def get(self):
 		
