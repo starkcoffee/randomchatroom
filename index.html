@@ -52,7 +52,7 @@ function ajaxUpdate(){
     });
 }
 
-var submitted = false;
+var submittedAt = new Date(0);
 $(document).ready(function(){
     ajaxUpdate();
     $('#content').keypress(submitEnter);
@@ -60,10 +60,12 @@ $(document).ready(function(){
         if (('#content').value == ""){
             return false;
         }
-        if(submitted){
+        var now = new Date();
+        var lastSubmitted = now.getTime() - submittedAt.getTime();
+        if(lastSubmitted < 3000){
             return false;
         }
-        submitted = true;
+        submittedAt = new Date();
     });
 })
 
