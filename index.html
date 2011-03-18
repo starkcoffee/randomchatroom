@@ -27,22 +27,15 @@ if (document.domain == "randomguestbook.appspot.com")
     window.location.href = "http://the.randomchatroom.net"
 }
 
-function submitenter(myfield,e)
+function submitEnter(e)
 {
-    var keycode;
-    if (window.event) keycode = window.event.keyCode;
-    else if (e) keycode = e.which;
-    else return true;
-
-    if (keycode == 13)
+    if (e.keyCode == 13)
     {
-       if (myfield.value != "") {
-        myfield.form.submit();
-       }
+       $("form").submit();
        return false;
     }
-       return true;
 }
+
 function scheduleUpdate(){
     setTimeout('ajaxUpdate()', 10000);
 }
@@ -59,7 +52,20 @@ function ajaxUpdate(){
     });
 }
 
-$(document).ready(ajaxUpdate)
+var submitted = false;
+$(document).ready(function(){
+    ajaxUpdate();
+    $('#content').keypress(submitEnter);
+    $('form').submit(function(){
+        if (('#content').value == ""){
+            return false;
+        }
+        if(submitted){
+            return false;
+        }
+        submitted = true;
+    });
+})
 
 //-->
 </SCRIPT>
@@ -69,7 +75,7 @@ $(document).ready(ajaxUpdate)
       <div style="float: right"><a href="/info/about.html">About</a></div>
     <div>Hi! Please write something! Press enter to submit.</div>
     <form action="/messages" method="post">
-        <div><textarea name="content" rows="3" cols="60" required="required" onKeyPress="return submitenter(this,event)"></textarea></div>
+        <div><textarea id="content" name="content" rows="3" cols="60" required="required"></textarea></div>
 		Alias: <input type="text" name="alias" value='{{alias}}' /><input type="submit" value="Submit">
     </form>
     <br/>
