@@ -38,22 +38,24 @@ class MessageView:
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-	alias = self.request.cookies.get('alias')
-	if not alias: alias = ""
+    alias = self.request.cookies.get('alias')
+    if not alias: alias = ""
+    
+    room = self.request.path
+    logging.info("****** room is " + room)
 	
-	room = self.request.path
-	logging.info("****** room is " + room)
-	
-	template_values = {'alias' : alias, 'room' : room}
-	path = os.path.join(os.path.dirname(__file__), 'index.html')
-	self.response.out.write(template.render(path, template_values))
+    template_values = {'alias' : alias, 'room' : room}
+    path = os.path.join(os.path.dirname(__file__), 'index.html')
+    self.response.out.write(template.render(path, template_values))
 
 
 class Messages(webapp.RequestHandler):
   def post(self):
     message = Message()
-      
-    room = self.request.get('room')
+    
+    room = self.request.get('room').upper()
+    message.room = room.upper()
+    
     alias = self.request.get('alias')
     if alias:
       alias = alias.lstrip('"')
@@ -73,13 +75,15 @@ class Messages(webapp.RequestHandler):
     if message.content:
       message.put()
 
-      memcache.set("last_message_posted_at", datetime.datetime.utcnow())  
-      
-    self.redirect('/') #room)
+      memcache.set("last_message_posted_at_"+room, datetime.datetime.utcnow())  
+    
+    self.redirect(room)
 
   def get(self):
+    
+    room = self.request.path.split("/messages")[1]
 		
-    lastModifiedTime = memcache.get("last_message_posted_at") 
+    lastModifiedTime = memcache.get("last_message_posted_at_"+room) 
 
     # would be nice to initialize lastModifiedTime in memcache on app startup somehow so we dont need the None check
     if lastModifiedTime is None:
@@ -89,10 +93,8 @@ class Messages(webapp.RequestHandler):
     if self.request.headers.get('If-Modified-Since') == lastModifiedTime.strftime('%a, %d %b %Y %H:%M:%S GMT'): 
         return self.response.set_status(304) 
     
-    messages_query = Message.all().order('-date')
-    #cookieRoom = self.request.cookies.get('room')
-    #messages_query = db.GqlQuery("SELECT * FROM Message WHERE room = :1 ORDER BY date DESC",cookieRoom)
-    # print cookieRoom
+    #messages_query = Message.all().order('-date')
+    messages_query = db.GqlQuery("SELECT * FROM Message WHERE room = :1 ORDER BY date DESC",room)
     messages = messages_query.fetch(50)
 
     message_views = []
@@ -113,7 +115,7 @@ class Messages(webapp.RequestHandler):
 
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
-                                      ('/messages', Messages),
+                                      ('/messages.*', Messages),
                                       ('/.*', MainPage)],
                                      debug=True)
 
