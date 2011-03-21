@@ -12,7 +12,6 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
-from google.appengine.api import memcache
 
 class Message(db.Model):
   author = db.UserProperty()
@@ -53,7 +52,7 @@ class Messages(webapp.RequestHandler):
   def post(self):
     message = Message()
     
-    room = self.request.get('room').upper()
+    room = self.request.get('room')
     message.room = room.upper()
     
     alias = self.request.get('alias')
@@ -88,12 +87,11 @@ class Messages(webapp.RequestHandler):
     # would be nice to initialize lastModifiedTime in memcache on app startup somehow so we dont need the None check
     if lastModifiedTime is None:
         lastModifiedTime = datetime.datetime.utcnow()
-        memcache.set("last_message_posted_at", datetime.datetime.utcnow())    
+        memcache.set("last_message_posted_at_"+room, datetime.datetime.utcnow())    
 
     if self.request.headers.get('If-Modified-Since') == lastModifiedTime.strftime('%a, %d %b %Y %H:%M:%S GMT'): 
         return self.response.set_status(304) 
     
-    #messages_query = Message.all().order('-date')
     messages_query = db.GqlQuery("SELECT * FROM Message WHERE room = :1 ORDER BY date DESC",room)
     messages = messages_query.fetch(50)
 
