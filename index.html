@@ -24,7 +24,7 @@
 
 if (document.domain == "randomguestbook.appspot.com") 
 {
-    window.location.href = "http://the.randomchatroom.net"
+    window.location.href = "http://the.randomchatroom.net/"
 }
 
 function submitEnter(e)
@@ -43,7 +43,7 @@ function scheduleUpdate(){
 
 function ajaxUpdate(){
     $.ajax({
-      url: "messages",
+      url: "messages/"+document.URL.replace("http://","").split("/")[1].toUpperCase(),
       context: document.body,
       success: function(data, textStatus, jqXHR){
         $("#messages").html(data);
@@ -79,6 +79,7 @@ $(document).ready(function(){
     <form action="/messages" method="post">
         <div><textarea id="content" name="content" rows="3" cols="60" required="required"></textarea></div>
 		Alias: <input type="text" name="alias" value='{{alias}}' /><input type="submit" value="Submit">
+		<input type="hidden" name="room" value="{{room}}"/>
     </form>
     <br/>
 
