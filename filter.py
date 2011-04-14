@@ -118,7 +118,7 @@ def html(string, extra=""):
     	# string = re.sub(pattern, code, string)
     # else:
     #URL matching
-    pattern = "((?:(?:http[s]?://)|(?:www.))(?:\S+))[\w]"
+    pattern = "((?:(?:http[s]?://)|(?:www.))(?:\S+))"
     search = re.search(pattern,string)
     if search:
         logging.info("DERP")
@@ -131,7 +131,7 @@ def html(string, extra=""):
             else:
                 url = re.sub("http://","",url)
                 code = "<a href='http://" + url + "'>"+url+"</a>"
-            string = re.sub("(?:http[s]?://)?"+url, code, string)
+            string = re.sub("(?:http[s]?://)?"+re.escape(url), code, string)
     return string
     
 def all(string,extra=""):
