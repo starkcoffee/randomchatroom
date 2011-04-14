@@ -121,16 +121,17 @@ def html(string, extra=""):
     pattern = "((?:(?:http[s]?://)|(?:www.))(?:\S+))[\w]"
     search = re.search(pattern,string)
     if search:
-    	url = search.group(0)
-    	if search.group(1) != None:
-    		if re.search("https://",url):
-    			url = "https://"+re.sub("https://","",url)
-    			code = "<a href='" + url + "'>"+url+"</a>"
-    		else:
-    			url = re.sub("http://","",url)
-    			code = "<a href='http://" + url + "'>"+url+"</a>"
-    		string = re.sub(pattern, code, string)
-    #print string
+        logging.info("DERP")
+        for search in re.finditer(pattern, string):
+         url = search.group(0)
+         if search.group(1) != None:
+            if re.search("https://",url):
+                url = "https://"+re.sub("https://","",url)
+                code = "<a href='" + url + "'>"+url+"</a>"
+            else:
+                url = re.sub("http://","",url)
+                code = "<a href='http://" + url + "'>"+url+"</a>"
+            string = re.sub("(?:http[s]?://)?"+url, code, string)
     return string
     
 def all(string,extra=""):
