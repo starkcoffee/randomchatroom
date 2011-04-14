@@ -76,7 +76,7 @@ $(document).ready(function(){
   <body>
       <div style="float: right"><a href="/info/about.html">About</a></div>
     <div>Hi! Please write something! Press enter to submit.</div>
-    <form action="/messages" method="post">
+    <form action="/messages/" method="post">
         <div><textarea id="content" name="content" rows="3" cols="60" required="required"></textarea></div>
 		Alias: <input type="text" name="alias" value='{{alias}}' /><input type="submit" value="Submit">
 		<input type="hidden" name="room" value="{{room}}"/>

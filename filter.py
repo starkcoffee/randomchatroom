@@ -31,7 +31,7 @@ def swears(string):
     rudishWords = getSwears()
     for word in rudishWords:
         pattern = re.compile(word,re.IGNORECASE | re.VERBOSE)
-        string = re.sub(pattern,'banana',string.replace("",""))
+        string = re.sub(pattern,'banana',string)
     return string
 
 #@Name Matching, because I could and it was suggested. =3

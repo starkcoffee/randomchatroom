@@ -31,7 +31,12 @@ class MessageView:
 
     now = datetime.datetime.now()
     timedelta = now - message.date
-    self.ago_minutes = timedelta.seconds / 60
+    if timedelta.days > 0:
+        self.ago_string = str(timedelta.days) + " day"
+        if timedelta.days != 1:
+            self.ago_stirng = self.ago_string + "s"
+    else:
+        self.ago_string = str(timedelta.seconds / 60) + " minutes"
     if name == None: name = ""
     self.content = filter.twitter(message.content,name)
 
@@ -74,7 +79,7 @@ class Messages(webapp.RequestHandler):
     if message.content:
       message.put()
 
-      memcache.set("last_message_posted_at_"+room, datetime.datetime.utcnow())  
+      memcache.set("last_message_posted_at_"+message.room, datetime.datetime.utcnow())  
     
     self.redirect(room)
 
@@ -113,7 +118,7 @@ class Messages(webapp.RequestHandler):
 
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
-                                      ('/messages.*', Messages),
+                                      ('/messages/.*', Messages),
                                       ('/.*', MainPage)],
                                      debug=True)
 

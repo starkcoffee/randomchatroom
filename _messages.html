@@ -1,5 +1,5 @@
     {% for message in messages %}
-    {{ message.author}} wrote {{ message.ago_minutes }} mins ago:
+    {{ message.author}} wrote {{ message.ago_string }} ago:
       <blockquote>{{ message.content }}</blockquote>
     {% endfor %}
 
