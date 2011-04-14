@@ -11,10 +11,14 @@ Please join the google group for help on getting involved http://groups.google.c
 To run this application locally:
 --------------------------------
 
+# Make sure python is installed (not python 3)
+# Install nose (python library for running tests)
+# Install Google App Engine SDK
 # Fork this repository
 # Clone that repository onto your local machine
-# Get the code onto your local machine by doing a clone of your forked repository
-# Run it using the Google App Engine SDK
+# Run the tests with the command `nosetests`
+
+If you have any issues, ask in the chat room or email randomchatroom@googlegroups.com
 
 Learning resources
 -------------------
