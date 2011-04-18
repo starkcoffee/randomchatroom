@@ -1,6 +1,7 @@
     {% for message in messages %}
-    {{ message.author}} wrote {{ message.ago_string }} ago:
+    <p id="title">{{ message.author}} wrote {{ message.ago_string }} ago:</p>
       <blockquote>{{ message.content }}</blockquote>
+      <script type='text/javascript'></script>
     {% endfor %}
 
 

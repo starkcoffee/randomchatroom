@@ -34,7 +34,7 @@ class MessageView:
     if timedelta.days > 0:
         self.ago_string = str(timedelta.days) + " day"
         if timedelta.days != 1:
-            self.ago_stirng = self.ago_string + "s"
+            self.ago_string = self.ago_string + "s"
     else:
         self.ago_string = str(timedelta.seconds / 60) + " minutes"
     if name == None: name = ""

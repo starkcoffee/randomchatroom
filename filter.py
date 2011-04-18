@@ -121,7 +121,6 @@ def html(string, extra=""):
     pattern = "((?:(?:http[s]?://)|(?:www.))(?:\S+))"
     search = re.search(pattern,string)
     if search:
-        logging.info("DERP")
         for search in re.finditer(pattern, string):
          url = search.group(0)
          if search.group(1) != None:
