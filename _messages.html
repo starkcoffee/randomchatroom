@@ -1,7 +1,51 @@
     {% for message in messages %}
-    <p id="title">{{ message.author}} wrote {{ message.ago_string }} ago:</p>
+	<script type="text/javascript">
+		currentDate = new Date();
+		postDateString = "{{message.date}}"; // Is coming in 10 hours too low.
+		reggie = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/g;
+		dateArray = reggie.exec(postDateString); 
+		postDate = new Date(
+			dateArray[1],
+			dateArray[2]-1, // Months start at 0.
+			dateArray[3],
+			dateArray[4],
+			dateArray[5],
+			dateArray[6]
+		);
+		timeSincePost =  Math.floor(( currentDate.getTime() - postDate.getTime()) / 1000) - 36000; // To correct the times, may have to be changed again later.
+		
+		if (Math.floor(timeSincePost / 86400) > 0){
+			days = Math.floor(timeSincePost / 86400);
+			timeSincePost = days + ' day' + (days==1?'':'s');
+		}
+		else if (Math.floor(timeSincePost / 3600) > 0){
+			hours = Math.floor(timeSincePost / 3600);
+			timeSincePost = hours + ' hour' + (hours==1?'':'s');
+		}
+		else if (Math.floor(timeSincePost / 60) > 0){
+			minutes = Math.floor(timeSincePost / 60);
+			timeSincePost = minutes + ' minute' + (minutes==1?'':'s');
+		}
+		else{
+			timeSincePost = timeSincePost + ' second' + (timeSincePost==1?'':'s');
+		}
+		document.getElementById('{{message.date}}').innerHTML= '{{message.author}} wrote ' + timeSincePost + ' ago:';
+		
+		if (window_focus == true){
+			cleanTitle();
+		}
+		else if (postDate.getTime() > lastMessage){
+			newMessageCount = newMessageCount + 1;
+			if (postDate.getTime() > newLastMessage){ newLastMessage = postDate.getTime(); }
+			message = '('+newMessageCount+') ';
+			document.title = message + 'Random Awesomeness';
+		}
+	</script>
+	
+	<div id='{{message.date}}'></div>
       <blockquote>{{ message.content }}</blockquote>
-      <script type='text/javascript'></script>
     {% endfor %}
 
-
+	<script>
+		if (newLastMessage > lastMessage){ lastMessage = newLastMessage; }
+	</script>

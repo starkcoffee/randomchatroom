@@ -3,7 +3,19 @@
   <head>
     <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-    <title>Random awesomeness.</title>
+    <title>Random Awesomeness</title>
+	
+	<script type="text/javascript">
+	function cleanTitle(){
+		newMessageCount = 0;
+		newLastMessage = currentDate.getTime() - 36000000
+		lastMessage = currentDate.getTime() - 36000000;
+		document.title = 'Random Awesomeness';		
+	}
+	window.onblur =  function (){ window_focus = false; }
+	window.onfocus = function (){ window_focus = true; cleanTitle(); }
+	window.onload = window.onfocus;
+	</script>
 
     <script type="text/javascript">
 
@@ -37,7 +49,7 @@ function submitEnter(e)
 }
 
 function scheduleUpdate(){
-    setTimeout('ajaxUpdate()', 10000);
+    setTimeout('ajaxUpdate()', 5000);
 }
 
 
@@ -88,3 +100,4 @@ $(document).ready(function(){
 
   </body>
 </html>
+

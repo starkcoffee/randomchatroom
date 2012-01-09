@@ -30,13 +30,8 @@ class MessageView:
         self.author = "A monkey"
 
     now = datetime.datetime.now()
-    timedelta = now - message.date
-    if timedelta.days > 0:
-        self.ago_string = str(timedelta.days) + " day"
-        if timedelta.days != 1:
-            self.ago_string = self.ago_string + "s"
-    else:
-        self.ago_string = str(timedelta.seconds / 60) + " minutes"
+    self.date = message.date
+	
     if name == None: name = ""
     self.content = filter.twitter(message.content,name)
 

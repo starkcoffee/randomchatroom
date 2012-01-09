@@ -118,6 +118,7 @@ def html(string, extra=""):
     	# string = re.sub(pattern, code, string)
     # else:
     #URL matching
+		
     pattern = "((?:(?:http[s]?://)|(?:www.))(?:\S+))"
     search = re.search(pattern,string)
     if search:
