@@ -61,6 +61,7 @@ class Messages(webapp.RequestHandler):
       alias = alias.rstrip('"')
       cookie = Cookie.SimpleCookie()
       cookie['alias'] = alias
+      cookie['alias']['path'] = '/'
       print cookie 
     elif self.request.cookies.get('alias'):
       alias = self.request.cookies.get('alias')
