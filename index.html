@@ -49,7 +49,7 @@ function submitEnter(e)
 }
 
 function scheduleUpdate(){
-    setTimeout('ajaxUpdate()', 5000);
+    setTimeout('ajaxUpdate()', 10000);
 }
 
 
@@ -96,7 +96,10 @@ $(document).ready(function(){
 
     <div id="messages">
     </div>
-
+	
+	<noscript>
+		<div>Please enable Javascript to view messages.</div>
+	</noscript>
 
   </body>
 </html>
